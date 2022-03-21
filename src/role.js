@@ -10,7 +10,7 @@ async function getRoles () {
               FROM roles
               LEFT JOIN departments 
               ON roles.department_id = departments.id`;
-  let results = await db.query(sql);
+  const results = await db.query(sql);
   return results[0];
 }
 
@@ -19,7 +19,7 @@ async function createRole (title, salary, department_id) {
   const sql = `INSERT INTO roles (title, salary, department_id) 
               VALUES (?, ?, ?)`;
   const role = [title, salary, department_id]
-  let results = await db.query(sql, role);
+  const results = await db.query(sql, role);
   return results[0];
 }
 

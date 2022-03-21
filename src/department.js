@@ -2,8 +2,11 @@ const db = require('../db/connection');
 
 // view departments
 async function getDepartments () {
-  const sql = `SELECT * FROM departments`;
-  let results = await db.query(sql);
+  const sql = `SELECT 
+              departments.id AS ID,
+              departments.name AS Name
+              FROM departments`;
+  const results = await db.query(sql);
   // console.table(results[0])
   // await db.end();
   return results[0];
@@ -12,7 +15,7 @@ async function getDepartments () {
 // create a department
 async function createDepartment (deptName) {
   const sql = `INSERT INTO departments (name) VALUES (?)`;
-  let results = await db.query(sql, deptName);
+  const results = await db.query(sql, deptName);
   // await db.end();
   return results[0];
 }

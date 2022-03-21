@@ -17,7 +17,7 @@ async function getEmployees () {
               on roles.id = employees.role_id
               LEFT JOIN departments
               ON departments.id = roles.department_id`;
-  let results = await db.query(sql);
+  const results = await db.query(sql);
   return results[0];
 }
 
@@ -26,7 +26,7 @@ async function createEmployee (first_name, last_name, role_id, manager_id) {
   const sql = `INSERT INTO employees (first_name, last_name, role_id, manager_id) 
               VALUES (?, ?, ?, ?)`;
   const employee = [first_name, last_name, role_id, manager_id]
-  let results = await db.query(sql, employee);
+  const results = await db.query(sql, employee);
   return results[0];
 }
 
@@ -35,7 +35,7 @@ async function updateEmployee (newRole, id) {
   const sql = `UPDATE employees SET role_id = ? 
                WHERE id = ?`;
   const updateInfo = [newRole, id]
-  let results = await db.query(sql, updateInfo);
+  const results = await db.query(sql, updateInfo);
   return results[0];
 }
 
