@@ -2,8 +2,11 @@ const db = require('../db/connection');
 
 // view roles
 async function getRoles () {
-  const sql = `SELECT roles.*, departments.name 
-              AS department 
+  const sql = `SELECT 
+              roles.id AS ID,
+              roles.title AS Title,
+              roles.salary AS Salary,
+              departments.name AS department 
               FROM roles
               LEFT JOIN departments 
               ON roles.department_id = departments.id`;

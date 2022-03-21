@@ -3,23 +3,20 @@ const db = require('../db/connection');
 // view employees
 async function getEmployees () {
   const sql = `SELECT 
-              e.id AS 'ID', 
-              e.first_name AS 'First Name', 
-              e.last_name AS 'Last Name', 
+              employees.id AS 'ID', 
+              employees.first_name AS 'First Name', 
+              employees.last_name AS 'Last Name', 
               roles.title AS 'Role', 
-              CONCAT( employees.first_name, ' ', employees.last_name) AS "Manager's Name",
+              CONCAT(manager.first_name, ' ', manager.last_name) AS "Manager's Name",
               departments.name AS 'Department Name',
               roles.salary AS 'Salary'
               FROM employees
-              INNER JOIN employees e
-              ON employees.id = e.manager_id
-              JOIN roles
-              on roles.id = e.role_id
+              LEFT JOIN employees manager
+              ON manager.id = employees.manager_id
+              LEFT JOIN roles
+              on roles.id = employees.role_id
               LEFT JOIN departments
-              ON departments.id = roles.department_id
-              ORDER BY e.id
-              ;
-            `;
+              ON departments.id = roles.department_id`;
   let results = await db.query(sql);
   return results[0];
 }

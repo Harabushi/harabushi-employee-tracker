@@ -7,7 +7,7 @@ const db = require('./db/connection');
 
 async function init() {
   // await createRole('new title', 150000, 2);
-  let results = await updateEmployee(4, 11);
+  let results = await getEmployees();
 
   await db.end();
   // console.log(departments)
