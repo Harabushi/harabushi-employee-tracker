@@ -20,16 +20,8 @@ async function getEmployees () {
               ORDER BY e.id
               ;
             `;
-  db.query(sql, (err, rows) => {
-    if (err) {
-      console.log(err);
-      return;
-    }
-    console.log({
-      message: 'success',
-      data: rows
-    });
-  });
+  let results = await db.query(sql);
+  return results[0];
 }
 
 // create a employee
@@ -37,16 +29,8 @@ async function createEmployee (first_name, last_name, role_id, manager_id) {
   const sql = `INSERT INTO employees (first_name, last_name, role_id, manager_id) 
               VALUES (?, ?, ?, ?)`;
   const employee = [first_name, last_name, role_id, manager_id]
-  db.query(sql, employee, (err, result) => {
-    if (err) {
-      console.log(err);
-      return;
-    }
-    console.log({
-      message: 'success',
-      data: result
-    });
-  });
+  let results = await db.query(sql, employee);
+  return results[0];
 }
 
 // update employee
@@ -54,16 +38,8 @@ async function updateEmployee (newRole, id) {
   const sql = `UPDATE employees SET role_id = ? 
                WHERE id = ?`;
   const updateInfo = [newRole, id]
-  db.query(sql, updateInfo, (err, result) => {
-    if (err) {
-      console.log(err);
-      return;
-    }
-    console.log({
-      message: 'success',
-      data: result
-    });
-  });
+  let results = await db.query(sql, updateInfo);
+  return results[0];
 }
 
 // delete a employee

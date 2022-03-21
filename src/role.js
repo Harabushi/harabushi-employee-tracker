@@ -7,16 +7,8 @@ async function getRoles () {
               FROM roles
               LEFT JOIN departments 
               ON roles.department_id = departments.id`;
-  db.query(sql, (err, rows) => {
-    if (err) {
-      console.log(err);
-      return;
-    }
-    console.log({
-      message: 'success',
-      data: rows
-    });
-  });
+  let results = await db.query(sql);
+  return results[0];
 }
 
 // create a role
@@ -24,16 +16,8 @@ async function createRole (title, salary, department_id) {
   const sql = `INSERT INTO roles (title, salary, department_id) 
               VALUES (?, ?, ?)`;
   const role = [title, salary, department_id]
-  db.query(sql, role, (err, result) => {
-    if (err) {
-      console.log(err);
-      return;
-    }
-    console.log({
-      message: 'success',
-      data: result
-    });
-  });
+  let results = await db.query(sql, role);
+  return results[0];
 }
 
 // delete a role
