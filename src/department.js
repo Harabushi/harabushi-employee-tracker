@@ -3,17 +3,9 @@ const db = require('../db/connection');
 // view departments
 async function getDepartments () {
   const sql = `SELECT * FROM departments`;
-  db.query(sql, (err, rows) => {
-    if (err) {
-      console.log(err);
-      return;
-    }
-    console.log({
-      message: 'success',
-      data: rows
-    });
-  });
-}
+  let results = await db.query(sql);
+  return results;
+};
 
 // create a department
 async function createDepartment (deptName) {
