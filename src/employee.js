@@ -21,6 +21,15 @@ async function getEmployees () {
   return results[0];
 }
 
+// get employees by name
+async function getEmployeeNames () {
+  const sql = `SELECT employees.id AS ID,
+              CONCAT(employees.first_name, " ", employees.last_name) AS Name
+              FROM employees`;
+  const results = await db.query(sql);
+  return results[0];
+}
+
 // create a employee
 async function createEmployee (first_name, last_name, role_id, manager_id) {
   const sql = `INSERT INTO employees (first_name, last_name, role_id, manager_id) 
@@ -39,7 +48,7 @@ async function updateEmployee (newRole, id) {
   return results[0];
 }
 
-// delete a employee
+// delete an employee
 
 
-module.exports = { getEmployees, createEmployee, updateEmployee }
+module.exports = { getEmployees, createEmployee, updateEmployee, getEmployeeNames }

@@ -3,84 +3,25 @@ const cTable = require('console.table');
 const db = require('./db/connection');
 const { getDepartments, createDepartment } = require('./src/department')
 const { getRoles, createRole } = require('./src/role')
-const { getEmployees, createEmployee, updateEmployee } = require('./src/employee');
-
-const appStart = [
-  {
-    type: 'list',
-    name: 'start',
-    message: 'What would you like to do?',
-    choices: [
-      'View all Departments', 'View all Roles', 'View all Employees',
-      'Add a Department', 'Add a Role', 'Add an Employee',
-      'Update an Employee\'s Role', 'Exit'
-    ]
-  }
-]
-
-const departmentQuestions = [
-  {
-    type: "input",
-    name: "departmentName",
-    message: "Please enter the name of the new Department:",
-    validate: departmentName => {
-      if (departmentName) {
-        return true;
-      } else {
-        console.log("Please enter the Department name!");
-        return false;
-      };
-    }
-  }
-]
-
-const roleQuestions = [
-  {
-    type: "input",
-    name: "title",
-    message: "Please enter Role Title:",
-    validate: title => {
-      if (title) {
-        return true;
-      } else {
-        console.log("Please enter a Title for the Role!");
-        return false;
-      };
-    }
-  },
-  {
-    type: "input",
-    name: "salary",
-    message: "Please enter the Salary for the new Role:",
-    validate: salary => {
-      if (isNaN(salary)) {
-        // want to add a line clear or something here
-        console.log("Please enter a number for the Salary!");
-        return false;
-      } else if (salary) {
-        return true;
-      } else {
-        console.log("Please enter a Salary!");
-        return false;
-      };
-    }
-  },
-  {
-    type: "list",
-    name: "department",
-    message: "What Department does this Role belong to?",
-    choices: getDepartments()
-  }
-]
-
-// const employeeQuestions = [
-//   {
-
-//   }
-// ]
+const { getEmployees, createEmployee, updateEmployee, getEmployeeNames } = require('./src/employee');
+const { NONAME } = require('dns');
 
 async function addDepartment () {
-  const response = await inquirer.prompt(departmentQuestions);
+  const response = await inquirer.prompt([
+    {
+      type: "input",
+      name: "departmentName",
+      message: "Please enter the name of the new Department:",
+      validate: departmentName => {
+        if (departmentName) {
+          return true;
+        } else {
+          console.log("Please enter the Department name!");
+          return false;
+        };
+      }
+    }
+  ]);
   const results = await createDepartment(response.departmentName);
   if (results.affectedRows) {
     console.log(`Added ${response.departmentName}`);
@@ -92,9 +33,52 @@ async function addDepartment () {
 }
 
 async function addRole () {
-  // const departmentList = getDepartments();
-  const response = await inquirer.prompt(roleQuestions);
-  // const results = await createRole(response.title);
+  const departmentList = await getDepartments();
+  const departments = departmentList.map(list => ({
+    name: list.Name,
+    value: list.ID
+  }));
+
+  // console.log(departments);
+  const response = await inquirer.prompt([
+    {
+      type: "input",
+      name: "title",
+      message: "Please enter Role Title:",
+      validate: title => {
+        if (title) {
+          return true;
+        } else {
+          console.log("Please enter a Title for the Role!");
+          return false;
+        };
+      }
+    },
+    {
+      type: "input",
+      name: "salary",
+      message: "Please enter the Salary for the new Role:",
+      validate: salary => {
+        if (isNaN(salary)) {
+          // want to add a line clear or something here
+          console.log("Please enter a number for the Salary!");
+          return false;
+        } else if (salary) {
+          return true;
+        } else {
+          console.log("Please enter a Salary!");
+          return false;
+        };
+      }
+    },
+    {
+      type: "list",
+      name: "department",
+      message: "What Department does this Role belong to?",
+      choices: departments
+    }
+  ]);
+  const results = await createRole(response.title, response.salary, response.department);
   if (results.affectedRows) {
     console.log(`Added ${response.title}`);
     main();
@@ -104,8 +88,90 @@ async function addRole () {
   }
 }
 
+async function addEmployee () {
+  const roleList = await getRoles();
+  const roles = roleList.map(list => ({
+    name: list.Title,
+    value: list.ID
+  }));
+  // console.log(roles);
+
+  // I think classes *might* help me do this cleaner
+  // merge and concat didn't work on this part, just added getEmployeeNames to employee.js
+  const employeeList = await getEmployeeNames();
+  const employees = employeeList.map(list => ({
+    name: list.Name,
+    value: list.ID
+  }));
+  employees.push({
+    name: 'None',
+    value: null
+  })
+  // console.log(employees);
+
+  const response = await inquirer.prompt([
+    {
+      type: "input",
+      name: "firstName",
+      message: "Please enter the First Name of the Employee:",
+      validate: firstName => {
+        if (firstName) {
+          return true;
+        } else {
+          console.log("Please enter the Employee's name!");
+          return false;
+        };
+      }
+    },
+    {
+      type: "input",
+      name: "lastName",
+      message: "Please enter the Last Name of the Employee:",
+      validate: lastName => {
+        if (lastName) {
+          return true;
+        } else {
+          console.log("Please enter the Employee's name!");
+          return false;
+        };
+      }
+    },
+    {
+      type: "list",
+      name: "role",
+      message: "Please select a Role for the Employee:",
+      choices: roles
+    },
+    {
+      type: "list",
+      name: "manager",
+      message: "Please select a Manager for the Employee:",
+      choices: employees
+    }
+  ])
+  const results = await createEmployee(response.firstName, response.lastName, response.role, response.manager);
+  if (results.affectedRows) {
+    console.log(`Added ${response.firstName} ${response.lastName}`);
+    main();
+  } else {
+    console.log('There was an error somewhere')
+    main();
+  }
+}
+
 async function main() {
-  const response = await inquirer.prompt(appStart);
+  const response = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'start',
+      message: 'What would you like to do?',
+      choices: [
+        'View all Departments', 'View all Roles', 'View all Employees',
+        'Add a Department', 'Add a Role', 'Add an Employee',
+        'Update an Employee\'s Role', 'Exit'
+      ]
+    }
+  ]);
   // console.log(start);
 
   if (response.start === 'View all Departments') {
