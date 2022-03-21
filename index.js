@@ -159,6 +159,46 @@ async function addEmployee () {
   }
 }
 
+async function update () {
+  const roleList = await getRoles();
+  const roles = roleList.map(list => ({
+    name: list.Title,
+    value: list.ID
+  }));
+
+  const employeeList = await getEmployeeNames();
+  const employees = employeeList.map(list => ({
+    name: list.Name,
+    value: list.ID
+  }));
+
+  const response = await inquirer.prompt([
+    {
+      type: "list",
+      name: "employee",
+      message: "Please select the Employee to Update:",
+      choices: employees
+    },
+    {
+      type: "list",
+      name: "role",
+      message: "Please select the Employee\'s new Role:",
+      choices: roles
+    }
+  ]);
+  const updatedEmployee = employees[response.employee -1];
+  // console.log(updatedEmployee.name);
+  // console.log(response);
+  const results = await updateEmployee(response.role, response.employee);
+  if (results.affectedRows) {
+    console.log(`Updated ${updatedEmployee.name}'s Role`);
+    main();
+  } else {
+    console.log('There was an error somewhere')
+    main();
+  }
+}
+
 async function main() {
   const response = await inquirer.prompt([
     {
