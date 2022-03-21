@@ -4,22 +4,17 @@ const db = require('../db/connection');
 async function getDepartments () {
   const sql = `SELECT * FROM departments`;
   let results = await db.query(sql);
-  return results;
+  // console.table(results[0])
+  // await db.end();
+  return results[0];
 };
 
 // create a department
 async function createDepartment (deptName) {
   const sql = `INSERT INTO departments (name) VALUES (?)`;
-  db.query(sql, deptName, (err, result) => {
-    if (err) {
-      console.log(err);
-      return;
-    }
-    console.log({
-      message: 'success',
-      data: result
-    });
-  });
+  let results = await db.query(sql, deptName);
+  // await db.end();
+  return results[0];
 }
 
 // delete a department

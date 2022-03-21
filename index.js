@@ -5,10 +5,12 @@ const { getRoles, createRole } = require('./src/role')
 const { getEmployees, createEmployee, updateEmployee } = require('./src/employee');
 
 async function init() {
-  let departments = await getDepartments();
+  await createDepartment('new2');
+  let results = await getDepartments();
 
-  console.log(departments)
-  // console.table(departments)
+  await db.end();
+  // console.log(departments)
+  console.table(results)
 };
 
 init();
