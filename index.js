@@ -1,10 +1,8 @@
 const inquirer = require('inquirer');
 const cTable = require('console.table');
-const db = require('./db/connection');
-const { getDepartments, createDepartment } = require('./src/department')
+const { getDepartments, createDepartment, deleteDepartment } = require('./src/department')
 const { getRoles, createRole } = require('./src/role')
 const { getEmployees, createEmployee, updateEmployee, getEmployeeNames } = require('./src/employee');
-const { NONAME } = require('dns');
 
 async function addDepartment () {
   const response = await inquirer.prompt([
@@ -199,6 +197,33 @@ async function update () {
   }
 }
 
+async function departmentDelete () {
+  const departmentList = await getDepartments();
+  const departments = departmentList.map(list => ({
+    name: list.Name,
+    value: list.ID
+  }));
+
+  const response = await inquirer.prompt([
+    {
+      type: "list",
+      name: "department",
+      message: "Please select the Department to Delete:",
+      choices: departments
+    }
+  ]);
+  const deletedDepartment = departments[response.department -1];
+  // console.log(response.department);
+  const results = await deleteDepartment(response.department);
+  if (results.affectedRows) {
+    console.log(`Deleted ${deletedDepartment.name}`);
+    main();
+  } else {
+    console.log('There was an error somewhere')
+    main();
+  }
+}
+
 async function main() {
   const response = await inquirer.prompt([
     {
@@ -208,7 +233,7 @@ async function main() {
       choices: [
         'View all Departments', 'View all Roles', 'View all Employees',
         'Add a Department', 'Add a Role', 'Add an Employee',
-        'Update an Employee\'s Role', 'Exit'
+        'Update an Employee\'s Role', 'Delete a Department', 'Exit'
       ]
     }
   ]);
@@ -238,6 +263,9 @@ async function main() {
   } else if (response.start === 'Update an Employee\'s Role') {
     const results = await update();
     console.table(results);
+  } else if (response.start === 'Delete a Department') {
+    const results = await departmentDelete();
+    console.table(results);
   } else {
     process.exit()
   }
@@ -254,11 +282,3 @@ function init() {
 };
 
 init();
-
-
-  // await createRole('new title', 150000, 2);
-  // let results = await getEmployees();
-
-  // await db.end();
-  // console.log(departments)
-  // console.table(results)
