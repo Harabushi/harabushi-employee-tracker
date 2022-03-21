@@ -1,8 +1,8 @@
 const inquirer = require('inquirer');
 const cTable = require('console.table');
 const { getDepartments, createDepartment, deleteDepartment } = require('./src/department')
-const { getRoles, createRole } = require('./src/role')
-const { getEmployees, createEmployee, updateEmployee, getEmployeeNames } = require('./src/employee');
+const { getRoles, createRole, deleteRole } = require('./src/role')
+const { getEmployees, createEmployee, updateEmployee, getEmployeeNames, deleteEmployee } = require('./src/employee');
 
 async function addDepartment () {
   const response = await inquirer.prompt([
@@ -222,7 +222,61 @@ async function departmentDelete () {
     console.log('There was an error somewhere')
     main();
   }
-}
+};
+
+async function roleDelete () {
+  const roleList = await getRoles();
+  const roles = roleList.map(list => ({
+    name: list.Title,
+    value: list.ID
+  }));
+
+  const response = await inquirer.prompt([
+    {
+      type: "list",
+      name: "role",
+      message: "Please select the Role to Delete:",
+      choices: roles
+    }
+  ]);
+  const deletedRole = roles[response.role -1];
+  // console.log(response.department);
+  const results = await deleteRole(response.role);
+  if (results.affectedRows) {
+    console.log(`Deleted ${deletedRole.name}`);
+    main();
+  } else {
+    console.log('There was an error somewhere')
+    main();
+  }
+};
+
+async function employeeDelete () {
+  const employeeList = await getEmployeeNames();
+  const employees = employeeList.map(list => ({
+    name: list.Name,
+    value: list.ID
+  }));
+
+  const response = await inquirer.prompt([
+    {
+      type: "list",
+      name: "employee",
+      message: "Please select the Employee to Delete:",
+      choices: employees
+    }
+  ]);
+  const deletedEmployee = employees[response.employee -1];
+  // console.log(response.department);
+  const results = await deleteEmployee(response.employee);
+  if (results.affectedRows) {
+    console.log(`Deleted ${deletedEmployee.name}`);
+    main();
+  } else {
+    console.log('There was an error somewhere')
+    main();
+  }
+};
 
 async function main() {
   const response = await inquirer.prompt([
@@ -233,7 +287,8 @@ async function main() {
       choices: [
         'View all Departments', 'View all Roles', 'View all Employees',
         'Add a Department', 'Add a Role', 'Add an Employee',
-        'Update an Employee\'s Role', 'Delete a Department', 'Exit'
+        'Delete a Department', 'Delete a Role', 'Delete an Employee',
+        'Update an Employee\'s Role', 'Exit'
       ]
     }
   ]);
@@ -265,6 +320,12 @@ async function main() {
     console.table(results);
   } else if (response.start === 'Delete a Department') {
     const results = await departmentDelete();
+    console.table(results);
+  } else if (response.start === 'Delete a Role') {
+    const results = await roleDelete();
+    console.table(results);
+  } else if (response.start === 'Delete an Employee') {
+    const results = await employeeDelete();
     console.table(results);
   } else {
     process.exit()

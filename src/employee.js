@@ -49,6 +49,12 @@ async function updateEmployee (newRole, id) {
 }
 
 // delete an employee
+async function deleteEmployee (employeeId) {
+  const sql = `DELETE FROM employees WHERE id = ?`;
+  const results = await db.query(sql, employeeId);
+  // console.table(results[0])
+  // await db.end();
+  return results[0];
+};
 
-
-module.exports = { getEmployees, createEmployee, updateEmployee, getEmployeeNames }
+module.exports = { getEmployees, createEmployee, updateEmployee, getEmployeeNames, deleteEmployee }
