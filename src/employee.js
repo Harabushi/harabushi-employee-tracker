@@ -39,11 +39,20 @@ async function createEmployee (first_name, last_name, role_id, manager_id) {
   return results[0];
 }
 
-// update employee
-async function updateEmployee (newRole, id) {
+// update employee role
+async function updateEmployeeRole (newRole, id) {
   const sql = `UPDATE employees SET role_id = ? 
                WHERE id = ?`;
   const updateInfo = [newRole, id]
+  const results = await db.query(sql, updateInfo);
+  return results[0];
+}
+
+// update employee manager
+async function updateEmployeeManager (newManager, id) {
+  const sql = `UPDATE employees SET manager_id = ? 
+               WHERE id = ?`;
+  const updateInfo = [newManager, id]
   const results = await db.query(sql, updateInfo);
   return results[0];
 }
@@ -57,4 +66,4 @@ async function deleteEmployee (employeeId) {
   return results[0];
 };
 
-module.exports = { getEmployees, createEmployee, updateEmployee, getEmployeeNames, deleteEmployee }
+module.exports = { getEmployees, createEmployee, updateEmployeeRole, updateEmployeeManager, getEmployeeNames, deleteEmployee }

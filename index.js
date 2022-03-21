@@ -1,8 +1,8 @@
 const inquirer = require('inquirer');
 const cTable = require('console.table');
-const { getDepartments, createDepartment, deleteDepartment } = require('./src/department')
-const { getRoles, createRole, deleteRole } = require('./src/role')
-const { getEmployees, createEmployee, updateEmployee, getEmployeeNames, deleteEmployee } = require('./src/employee');
+const { getDepartments, createDepartment, deleteDepartment } = require('./src/department');
+const { getRoles, createRole, deleteRole } = require('./src/role');
+const { getEmployees, createEmployee, updateEmployeeRole, updateEmployeeManager, getEmployeeNames, deleteEmployee } = require('./src/employee');
 
 async function addDepartment () {
   const response = await inquirer.prompt([
@@ -28,7 +28,7 @@ async function addDepartment () {
     console.log('There was an error somewhere')
     main();
   }
-}
+};
 
 async function addRole () {
   const departmentList = await getDepartments();
@@ -84,7 +84,7 @@ async function addRole () {
     console.log('There was an error somewhere')
     main();
   }
-}
+};
 
 async function addEmployee () {
   const roleList = await getRoles();
@@ -155,9 +155,9 @@ async function addEmployee () {
     console.log('There was an error somewhere')
     main();
   }
-}
+};
 
-async function update () {
+async function updateRole () {
   const roleList = await getRoles();
   const roles = roleList.map(list => ({
     name: list.Title,
@@ -187,7 +187,7 @@ async function update () {
   const updatedEmployee = employees[response.employee -1];
   // console.log(updatedEmployee.name);
   // console.log(response);
-  const results = await updateEmployee(response.role, response.employee);
+  const results = await updateEmployeeRole(response.role, response.employee);
   if (results.affectedRows) {
     console.log(`Updated ${updatedEmployee.name}'s Role`);
     main();
@@ -195,7 +195,55 @@ async function update () {
     console.log('There was an error somewhere')
     main();
   }
-}
+};
+
+async function updateManager () {
+  const employeeList = await getEmployeeNames();
+  const employees = employeeList.map(list => ({
+    name: list.Name,
+    value: list.ID
+  }));
+
+  const employee = await inquirer.prompt([
+    {
+      type: "list",
+      name: "id",
+      message: "Please select the Employee to Update:",
+      choices: employees
+    }
+  ]);
+  const updatedEmployee = employees[employee.id -1];
+  // console.log(updatedEmployee.name);
+  // console.log(employee);
+
+  const possibleManagers = employeeList.filter(employees => employees.ID !== employee.id)
+  .map(list => ({
+    name: list.Name,
+    value: list.ID
+  }));
+  // console.log(possibleManagers);
+
+  const response = await inquirer.prompt([
+    {
+      type: "list",
+      name: "manager",
+      message: "Please select the Employee\'s new Manager:",
+      choices: possibleManagers
+    }
+  ]);
+
+  // const updatedEmployee = employees[response.id -1];
+  // console.log(updatedEmployee.name);
+  // console.log(response);
+  const results = await updateEmployeeManager(response.manager, employee.id);
+  if (results.affectedRows) {
+    console.log(`Updated ${updatedEmployee.name}'s Manager`);
+    main();
+  } else {
+    console.log('There was an error somewhere')
+    main();
+  }
+};
 
 async function departmentDelete () {
   const departmentList = await getDepartments();
@@ -288,7 +336,7 @@ async function main() {
         'View all Departments', 'View all Roles', 'View all Employees',
         'Add a Department', 'Add a Role', 'Add an Employee',
         'Delete a Department', 'Delete a Role', 'Delete an Employee',
-        'Update an Employee\'s Role', 'Exit'
+        'Update an Employee\'s Role', 'Update an Employee\'s Manager', 'Exit'
       ]
     }
   ]);
@@ -316,7 +364,7 @@ async function main() {
     const results = await addEmployee();
     console.table(results);
   } else if (response.start === 'Update an Employee\'s Role') {
-    const results = await update();
+    const results = await updateRole();
     console.table(results);
   } else if (response.start === 'Delete a Department') {
     const results = await departmentDelete();
@@ -326,6 +374,9 @@ async function main() {
     console.table(results);
   } else if (response.start === 'Delete an Employee') {
     const results = await employeeDelete();
+    console.table(results);
+  } else if (response.start === 'Update an Employee\'s Manager') {
+    const results = await updateManager();
     console.table(results);
   } else {
     process.exit()
