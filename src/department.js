@@ -1,7 +1,7 @@
 const db = require('../db/connection');
 
 // view departments
-async function getDepartment () {
+async function getDepartments () {
   const sql = `SELECT * FROM departments`;
   db.query(sql, (err, rows) => {
     if (err) {
@@ -12,7 +12,7 @@ async function getDepartment () {
       message: 'success',
       data: rows
     });
-  })
+  });
 }
 
 // create a department
@@ -27,9 +27,9 @@ async function createDepartment (deptName) {
       message: 'success',
       data: result
     });
-  })
+  });
 }
 
 // delete a department
 
-module.exports = { getDepartment, createDepartment }
+module.exports = { getDepartments, createDepartment }

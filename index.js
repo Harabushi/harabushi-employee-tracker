@@ -2,7 +2,9 @@ const inquirer = require('inquirer');
 const mysql = require('mysql2');
 require('dotenv').config();
 const cTable = require('console.table');
-const { getDepartment, createDepartment } = require('./src/department')
+const { getDepartments, createDepartment } = require('./src/department')
+const { getRoles, createRole } = require('./src/role')
+const { getEmployees, createEmployee, updateEmployee } = require('./src/employee');
 
 // const testing = function () {
 //   const sql = `SELECT 
@@ -31,5 +33,10 @@ const { getDepartment, createDepartment } = require('./src/department')
 // }
 
 // testing();
-createDepartment('new')
-.then(getDepartment());
+// createDepartment('new')
+// .then(getDepartment());
+// createRole('head honcho', 100000, 1)
+// // .then(getRoles());
+// createEmployee('tester', 'Mctesterson', 2, 1)
+// updateEmployee(1, 2)
+// .then(getEmployees());
