@@ -1,10 +1,8 @@
 const inquirer = require('inquirer');
 const cTable = require('console.table');
-const db = require('./db/connection');
-const { getDepartments, createDepartment } = require('./src/department')
-const { getRoles, createRole } = require('./src/role')
-const { getEmployees, createEmployee, updateEmployee, getEmployeeNames } = require('./src/employee');
-const { NONAME } = require('dns');
+const { getDepartments, createDepartment, deleteDepartment, getDepartmentBudget } = require('./src/department');
+const { getRoles, createRole, deleteRole } = require('./src/role');
+const { getEmployees, createEmployee, updateEmployeeRole, updateEmployeeManager, getEmployeeNames, deleteEmployee, getEmployeesManagers, getEmployeesDepartment } = require('./src/employee');
 
 async function addDepartment () {
   const response = await inquirer.prompt([
@@ -30,7 +28,7 @@ async function addDepartment () {
     console.log('There was an error somewhere')
     main();
   }
-}
+};
 
 async function addRole () {
   const departmentList = await getDepartments();
@@ -86,7 +84,7 @@ async function addRole () {
     console.log('There was an error somewhere')
     main();
   }
-}
+};
 
 async function addEmployee () {
   const roleList = await getRoles();
@@ -157,9 +155,9 @@ async function addEmployee () {
     console.log('There was an error somewhere')
     main();
   }
-}
+};
 
-async function update () {
+async function updateRole () {
   const roleList = await getRoles();
   const roles = roleList.map(list => ({
     name: list.Title,
@@ -189,7 +187,7 @@ async function update () {
   const updatedEmployee = employees[response.employee -1];
   // console.log(updatedEmployee.name);
   // console.log(response);
-  const results = await updateEmployee(response.role, response.employee);
+  const results = await updateEmployeeRole(response.role, response.employee);
   if (results.affectedRows) {
     console.log(`Updated ${updatedEmployee.name}'s Role`);
     main();
@@ -197,7 +195,137 @@ async function update () {
     console.log('There was an error somewhere')
     main();
   }
-}
+};
+
+async function updateManager () {
+  const employeeList = await getEmployeeNames();
+  const employees = employeeList.map(list => ({
+    name: list.Name,
+    value: list.ID
+  }));
+
+  const employee = await inquirer.prompt([
+    {
+      type: "list",
+      name: "id",
+      message: "Please select the Employee to Update:",
+      choices: employees
+    }
+  ]);
+  const updatedEmployee = employees[employee.id -1];
+  // console.log(updatedEmployee.name);
+  // console.log(employee);
+
+  // filter out this employee as a possible manager
+  const possibleManagers = employeeList.filter(employees => employees.ID !== employee.id)
+  .map(list => ({
+    name: list.Name,
+    value: list.ID
+  }));
+  // console.log(possibleManagers);
+
+  const response = await inquirer.prompt([
+    {
+      type: "list",
+      name: "manager",
+      message: "Please select the Employee\'s new Manager:",
+      choices: possibleManagers
+    }
+  ]);
+
+  // const updatedEmployee = employees[response.id -1];
+  // console.log(updatedEmployee.name);
+  // console.log(response);
+  const results = await updateEmployeeManager(response.manager, employee.id);
+  if (results.affectedRows) {
+    console.log(`Updated ${updatedEmployee.name}'s Manager`);
+    main();
+  } else {
+    console.log('There was an error somewhere')
+    main();
+  }
+};
+
+async function departmentDelete () {
+  const departmentList = await getDepartments();
+  const departments = departmentList.map(list => ({
+    name: list.Name,
+    value: list.ID
+  }));
+
+  const response = await inquirer.prompt([
+    {
+      type: "list",
+      name: "department",
+      message: "Please select the Department to Delete:",
+      choices: departments
+    }
+  ]);
+  const deletedDepartment = departments[response.department -1];
+  // console.log(response.department);
+  const results = await deleteDepartment(response.department);
+  if (results.affectedRows) {
+    console.log(`Deleted ${deletedDepartment.name}`);
+    main();
+  } else {
+    console.log('There was an error somewhere')
+    main();
+  }
+};
+
+async function roleDelete () {
+  const roleList = await getRoles();
+  const roles = roleList.map(list => ({
+    name: list.Title,
+    value: list.ID
+  }));
+
+  const response = await inquirer.prompt([
+    {
+      type: "list",
+      name: "role",
+      message: "Please select the Role to Delete:",
+      choices: roles
+    }
+  ]);
+  const deletedRole = roles[response.role -1];
+  // console.log(response.department);
+  const results = await deleteRole(response.role);
+  if (results.affectedRows) {
+    console.log(`Deleted ${deletedRole.name}`);
+    main();
+  } else {
+    console.log('There was an error somewhere')
+    main();
+  }
+};
+
+async function employeeDelete () {
+  const employeeList = await getEmployeeNames();
+  const employees = employeeList.map(list => ({
+    name: list.Name,
+    value: list.ID
+  }));
+
+  const response = await inquirer.prompt([
+    {
+      type: "list",
+      name: "employee",
+      message: "Please select the Employee to Delete:",
+      choices: employees
+    }
+  ]);
+  const deletedEmployee = employees[response.employee -1];
+  // console.log(response.department);
+  const results = await deleteEmployee(response.employee);
+  if (results.affectedRows) {
+    console.log(`Deleted ${deletedEmployee.name}`);
+    main();
+  } else {
+    console.log('There was an error somewhere')
+    main();
+  }
+};
 
 async function main() {
   const response = await inquirer.prompt([
@@ -208,7 +336,9 @@ async function main() {
       choices: [
         'View all Departments', 'View all Roles', 'View all Employees',
         'Add a Department', 'Add a Role', 'Add an Employee',
-        'Update an Employee\'s Role', 'Exit'
+        'Delete a Department', 'Delete a Role', 'Delete an Employee',
+        'Update an Employee\'s Role', 'Update an Employee\'s Manager',
+        'View Employees by Manager', 'View Employees by Department', 'View Utilized Budgets', 'Exit'
       ]
     }
   ]);
@@ -236,8 +366,32 @@ async function main() {
     const results = await addEmployee();
     console.table(results);
   } else if (response.start === 'Update an Employee\'s Role') {
-    const results = await update();
+    const results = await updateRole();
     console.table(results);
+  } else if (response.start === 'Delete a Department') {
+    const results = await departmentDelete();
+    console.table(results);
+  } else if (response.start === 'Delete a Role') {
+    const results = await roleDelete();
+    console.table(results);
+  } else if (response.start === 'Delete an Employee') {
+    const results = await employeeDelete();
+    console.table(results);
+  } else if (response.start === 'Update an Employee\'s Manager') {
+    const results = await updateManager();
+    console.table(results);
+  } else if (response.start === 'View Employees by Manager') {
+    const results = await getEmployeesManagers();
+    console.table(results);
+    main();
+  } else if (response.start === 'View Employees by Department') {
+    const results = await getEmployeesDepartment();
+    console.table(results);
+    main();
+  } else if (response.start === 'View Utilized Budgets') {
+    const results = await getDepartmentBudget();
+    console.table(results);
+    main();
   } else {
     process.exit()
   }
@@ -254,11 +408,3 @@ function init() {
 };
 
 init();
-
-
-  // await createRole('new title', 150000, 2);
-  // let results = await getEmployees();
-
-  // await db.end();
-  // console.log(departments)
-  // console.table(results)

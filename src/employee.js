@@ -21,6 +21,33 @@ async function getEmployees () {
   return results[0];
 }
 
+// view employees by manager
+async function getEmployeesManagers () {
+  const sql = `SELECT
+              CONCAT(manager.first_name, ' ', manager.last_name) AS Manager,
+              CONCAT(employees.first_name, ' ', employees.last_name) AS Employee
+              FROM employees
+              LEFT JOIN employees manager
+              ON manager.id = employees.manager_id
+              ORDER BY Manager;`;
+  const results = await db.query(sql);
+  return results[0];
+}
+
+// view employees by department
+async function getEmployeesDepartment (departmentId) {
+  const sql = `SELECT
+              Departments.name AS Department,
+              CONCAT(employees.first_name, ' ', employees.last_name) AS Employee
+              FROM employees
+              LEFT JOIN roles
+              ON roles.id = employees.role_id
+              LEFT JOIN departments
+              ON departments.id = roles.department_id`;
+  const results = await db.query(sql);
+  return results[0];
+}
+
 // get employees by name
 async function getEmployeeNames () {
   const sql = `SELECT employees.id AS ID,
@@ -39,8 +66,8 @@ async function createEmployee (first_name, last_name, role_id, manager_id) {
   return results[0];
 }
 
-// update employee
-async function updateEmployee (newRole, id) {
+// update employee role
+async function updateEmployeeRole (newRole, id) {
   const sql = `UPDATE employees SET role_id = ? 
                WHERE id = ?`;
   const updateInfo = [newRole, id]
@@ -48,7 +75,22 @@ async function updateEmployee (newRole, id) {
   return results[0];
 }
 
+// update employee manager
+async function updateEmployeeManager (newManager, id) {
+  const sql = `UPDATE employees SET manager_id = ? 
+               WHERE id = ?`;
+  const updateInfo = [newManager, id]
+  const results = await db.query(sql, updateInfo);
+  return results[0];
+}
+
 // delete an employee
+async function deleteEmployee (employeeId) {
+  const sql = `DELETE FROM employees WHERE id = ?`;
+  const results = await db.query(sql, employeeId);
+  // console.table(results[0])
+  // await db.end();
+  return results[0];
+};
 
-
-module.exports = { getEmployees, createEmployee, updateEmployee, getEmployeeNames }
+module.exports = { getEmployees, createEmployee, updateEmployeeRole, updateEmployeeManager, getEmployeeNames, deleteEmployee, getEmployeesManagers, getEmployeesDepartment }
