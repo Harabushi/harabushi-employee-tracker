@@ -29,4 +29,16 @@ async function deleteDepartment (departmentId) {
   return results[0];
 };
 
-module.exports = { getDepartments, createDepartment, deleteDepartment }
+async function getDepartmentBudget () {
+  const sql = `SELECT departments.name AS Department, SUM(salary) AS Budget
+              FROM employees
+              LEFT JOIN roles 
+              ON roles.id = employees.role_id
+              LEFT JOIN departments
+              ON departments.id = roles.department_id
+              GROUP BY departments.id ORDER BY Budget DESC`;
+  const results = await db.query(sql);
+  return results[0];
+}
+
+module.exports = { getDepartments, createDepartment, deleteDepartment, getDepartmentBudget }

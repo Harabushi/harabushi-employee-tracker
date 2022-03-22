@@ -1,6 +1,6 @@
 const inquirer = require('inquirer');
 const cTable = require('console.table');
-const { getDepartments, createDepartment, deleteDepartment } = require('./src/department');
+const { getDepartments, createDepartment, deleteDepartment, getDepartmentBudget } = require('./src/department');
 const { getRoles, createRole, deleteRole } = require('./src/role');
 const { getEmployees, createEmployee, updateEmployeeRole, updateEmployeeManager, getEmployeeNames, deleteEmployee, getEmployeesManagers, getEmployeesDepartment } = require('./src/employee');
 
@@ -389,8 +389,9 @@ async function main() {
     console.table(results);
     main();
   } else if (response.start === 'View Utilized Budgets') {
-    // const results = await getRoles();
+    const results = await getDepartmentBudget();
     console.table(results);
+    main();
   } else {
     process.exit()
   }
