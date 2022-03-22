@@ -8,6 +8,12 @@
   <br>
   <br>
 
+   ## Walkthrough
+
+  <br>
+
+  [Walk-Through Video](https://drive.google.com/file/d/1X9loTYrAF1g9l3Ebc0nWQHmyJbfa6mkp/view?usp=sharing)
+
   ## Table of Contents
 
   - [Installation](#installation)
