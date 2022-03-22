@@ -1,17 +1,17 @@
 INSERT INTO departments (name)
 VALUES
-  ('testing'),
-  ('deployment'),
-  ('fixing');
+  ('Testing'),
+  ('Deployment'),
+  ('Fixing');
 
 INSERT INTO roles (title, salary, department_id)
 VALUES
-  ('lead tester', '70000.00', 1),
-  ('line tester', '50000.00', 1),
-  ('lead deployment', '80000.00', 2),
-  ('line deployment', '60000.00', 2),
-  ('lead fixer', '60000.00', 3),
-  ('line fixer', '40000.00', 3);
+  ('Lead Tester', '70000.00', 1),
+  ('Line Tester', '50000.00', 1),
+  ('Lead Deployment', '80000.00', 2),
+  ('Line Deployment', '60000.00', 2),
+  ('Lead Fixer', '60000.00', 3),
+  ('Line Fixer', '40000.00', 3);
 
 INSERT INTO employees (first_name, last_name, role_id, manager_id)
 VALUES

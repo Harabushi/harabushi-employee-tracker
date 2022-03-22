@@ -22,7 +22,7 @@ async function getEmployees () {
 }
 
 // view employees by manager
-async function getManagers () {
+async function getEmployeesManagers () {
   const sql = `SELECT
               CONCAT(manager.first_name, ' ', manager.last_name) AS Manager,
               CONCAT(employees.first_name, ' ', employees.last_name) AS Employee
@@ -36,10 +36,14 @@ async function getManagers () {
 
 // view employees by department
 async function getEmployeesDepartment (departmentId) {
-  const sql = `SELECT employees.id AS ID,
-              CONCAT(employees.first_name, " ", employees.last_name) AS Name
-              FROM employees`;
-
+  const sql = `SELECT
+              Departments.name AS Department,
+              CONCAT(employees.first_name, ' ', employees.last_name) AS Employee
+              FROM employees
+              LEFT JOIN roles
+              ON roles.id = employees.role_id
+              LEFT JOIN departments
+              ON departments.id = roles.department_id`;
   const results = await db.query(sql);
   return results[0];
 }
@@ -89,4 +93,4 @@ async function deleteEmployee (employeeId) {
   return results[0];
 };
 
-module.exports = { getEmployees, createEmployee, updateEmployeeRole, updateEmployeeManager, getEmployeeNames, deleteEmployee, getManagers }
+module.exports = { getEmployees, createEmployee, updateEmployeeRole, updateEmployeeManager, getEmployeeNames, deleteEmployee, getEmployeesManagers, getEmployeesDepartment }
