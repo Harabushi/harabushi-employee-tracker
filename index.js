@@ -2,7 +2,7 @@ const inquirer = require('inquirer');
 const cTable = require('console.table');
 const { getDepartments, createDepartment, deleteDepartment } = require('./src/department');
 const { getRoles, createRole, deleteRole } = require('./src/role');
-const { getEmployees, createEmployee, updateEmployeeRole, updateEmployeeManager, getEmployeeNames, deleteEmployee } = require('./src/employee');
+const { getEmployees, createEmployee, updateEmployeeRole, updateEmployeeManager, getEmployeeNames, deleteEmployee, getManagers } = require('./src/employee');
 
 async function addDepartment () {
   const response = await inquirer.prompt([
@@ -216,6 +216,7 @@ async function updateManager () {
   // console.log(updatedEmployee.name);
   // console.log(employee);
 
+  // filter out this employee as a possible manager
   const possibleManagers = employeeList.filter(employees => employees.ID !== employee.id)
   .map(list => ({
     name: list.Name,
@@ -336,7 +337,8 @@ async function main() {
         'View all Departments', 'View all Roles', 'View all Employees',
         'Add a Department', 'Add a Role', 'Add an Employee',
         'Delete a Department', 'Delete a Role', 'Delete an Employee',
-        'Update an Employee\'s Role', 'Update an Employee\'s Manager', 'Exit'
+        'Update an Employee\'s Role', 'Update an Employee\'s Manager',
+        'View Employees by Manager', 'View Employees by Department', 'View Utilized Budgets', 'Exit'
       ]
     }
   ]);
@@ -377,6 +379,16 @@ async function main() {
     console.table(results);
   } else if (response.start === 'Update an Employee\'s Manager') {
     const results = await updateManager();
+    console.table(results);
+  } else if (response.start === 'View Employees by Manager') {
+    const results = await getManagers();
+    console.table(results);
+    main();
+  } else if (response.start === 'View Employees by Department') {
+    // const results = await getRoles();
+    console.table(results);
+  } else if (response.start === 'View Utilized Budgets') {
+    // const results = await getRoles();
     console.table(results);
   } else {
     process.exit()
